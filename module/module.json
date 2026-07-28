@@ -1,0 +1,21 @@
+{
+  "id": "foundry-autowaller",
+  "title": "Foundry Autowaller",
+  "description": "Detect and immediately apply walls to the current scene using an asynchronous walling service.",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "Sarcastic Games"
+    }
+  ],
+  "url": "https://github.com/Lewis-Bright/foundry-autowaller",
+  "manifest": "https://raw.githubusercontent.com/Lewis-Bright/foundry-autowaller/main/module/module.json",
+  "download": "https://github.com/Lewis-Bright/foundry-autowaller/releases/download/v0.1.0/foundry-autowaller.zip",
+  "esmodules": [
+    "scripts/autowaller.js"
+  ]
+}

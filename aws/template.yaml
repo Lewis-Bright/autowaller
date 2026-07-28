@@ -1,0 +1,152 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Asynchronous map wall detection for the Foundry Autowaller module
+
+Parameters:
+  ApiKey:
+    Type: String
+    NoEcho: true
+    MinLength: 24
+    Description: Initial private-service API key used by the Foundry module
+  ArtifactRetentionDays:
+    Type: Number
+    Default: 7
+    MinValue: 1
+    MaxValue: 30
+
+Globals:
+  Function:
+    Architectures: [x86_64]
+    Tracing: Active
+    Environment:
+      Variables:
+        JOB_TABLE: !Ref JobTable
+        ARTIFACT_BUCKET: !Ref ArtifactBucket
+        AUTOWALL_API_KEY: !Ref ApiKey
+
+Resources:
+  AutowallerApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: ["*"]
+        AllowHeaders: ["authorization", "content-type"]
+        AllowMethods: ["GET", "POST", "OPTIONS"]
+        MaxAge: 600
+
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ["*"]
+            AllowedMethods: [GET, PUT]
+            AllowedOrigins: ["*"]
+            MaxAge: 600
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireAutowallerArtifacts
+            Status: Enabled
+            ExpirationInDays: !Ref ArtifactRetentionDays
+
+  JobTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: jobId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: jobId
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+
+  JobQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 960
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt JobDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  JobDeadLetterQueue:
+    Type: AWS::SQS::Queue
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.12
+      CodeUri: functions/api/
+      Handler: lambda_function.lambda_handler
+      MemorySize: 256
+      Timeout: 15
+      Environment:
+        Variables:
+          JOB_QUEUE_URL: !Ref JobQueue
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JobTable
+        - S3CrudPolicy:
+            BucketName: !Ref ArtifactBucket
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt JobQueue.QueueName
+      Events:
+        CreateJob:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AutowallerApi
+            Path: /jobs
+            Method: POST
+        StartJob:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AutowallerApi
+            Path: /jobs/{jobId}/start
+            Method: POST
+        GetJob:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AutowallerApi
+            Path: /jobs/{jobId}
+            Method: GET
+
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: functions/worker
+      DockerTag: python3.12-v1
+    Properties:
+      PackageType: Image
+      MemorySize: 3008
+      Timeout: 900
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref JobTable
+        - S3CrudPolicy:
+            BucketName: !Ref ArtifactBucket
+      Events:
+        Jobs:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt JobQueue.Arn
+            BatchSize: 1
+            FunctionResponseTypes: [ReportBatchItemFailures]
+
+Outputs:
+  ApiUrl:
+    Description: Configure this URL in the Foundry module
+    Value: !Sub "https://${AutowallerApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}"
+  ArtifactBucketName:
+    Value: !Ref ArtifactBucket

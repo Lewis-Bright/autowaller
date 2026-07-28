@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sarcasticgames.co.uk/schemas/autowaller/wall-plan.schema.json",
+  "title": "Foundry Autowaller Wall Plan",
+  "type": "object",
+  "required": ["schemaVersion", "scene", "walls"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "scene": {
+      "type": "object",
+      "required": ["width", "height"],
+      "properties": {
+        "width": { "type": "integer", "minimum": 1 },
+        "height": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "walls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["c", "type", "confidence"],
+        "properties": {
+          "c": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": { "type": "number" }
+          },
+          "type": {
+            "enum": ["wall", "door", "secretDoor", "window", "terrain"]
+          },
+          "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "diagnostics": { "type": "object" }
+  },
+  "additionalProperties": false
+}
+
