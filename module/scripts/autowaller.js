@@ -77,6 +77,7 @@ async function confirmAndRun() {
 async function runAutowaller() {
   const scene = canvas.scene;
   const sceneId = scene.id;
+  let jobId = null;
   ui.notifications.info("Auto Wall is analysing this scene…");
 
   try {
@@ -90,6 +91,12 @@ async function runAutowaller() {
         height: dimensions.height,
         contentType
       })
+    });
+    jobId = job.jobId;
+    console.info(`${MODULE_ID} | created job ${jobId}`, {
+      sceneId,
+      sceneName: scene.name,
+      dimensions
     });
 
     const upload = await fetch(job.uploadUrl, {
@@ -120,11 +127,16 @@ async function runAutowaller() {
       .map((wall) => wallData(wall, job.jobId, dimensions));
     if (!walls.length) throw new Error("No confident wall segments were detected.");
 
+    console.info(`${MODULE_ID} | job ${jobId} applying ${walls.length} walls`, {
+      diagnostics: plan.diagnostics
+    });
     await scene.createEmbeddedDocuments("Wall", walls);
+    console.info(`${MODULE_ID} | job ${jobId} complete`);
     ui.notifications.info(`Auto Wall applied ${walls.length} wall segments.`);
   } catch (error) {
-    console.error(`${MODULE_ID} | failed`, error);
-    ui.notifications.error(error.message || "Auto Wall failed.");
+    console.error(`${MODULE_ID} | job ${jobId || "not-created"} failed`, error);
+    const trace = jobId ? ` Job: ${jobId}` : "";
+    ui.notifications.error(`${error.message || "Auto Wall failed."}${trace}`);
   }
 }
 
@@ -220,15 +232,16 @@ function validatePlan(plan, expected) {
 }
 
 function wallData(wall, runId, offset) {
-  const restriction = CONST.WALL_RESTRICTION_TYPES?.NORMAL ?? 20;
+  const movement = CONST.WALL_MOVEMENT_TYPES?.NORMAL ?? 20;
+  const sense = CONST.WALL_SENSE_TYPES?.NORMAL ?? 1;
   const doorNone = CONST.WALL_DOOR_TYPES?.NONE ?? 0;
   const [x1, y1, x2, y2] = wall.c;
   return {
     c: [x1 + offset.x, y1 + offset.y, x2 + offset.x, y2 + offset.y],
-    move: restriction,
-    sight: restriction,
-    light: restriction,
-    sound: restriction,
+    move: movement,
+    sight: sense,
+    light: sense,
+    sound: sense,
     door: doorNone,
     flags: {
       [MODULE_ID]: {
