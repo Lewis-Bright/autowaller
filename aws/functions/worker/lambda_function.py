@@ -5,7 +5,7 @@ import time
 import boto3
 from botocore.exceptions import ClientError
 
-from detector import detect_walls
+from bedrock_detector import detect_walls_with_bedrock
 
 
 TABLE_NAME = os.environ["JOB_TABLE"]
@@ -41,7 +41,9 @@ def _process(job_id):
             return
         raise
     source = s3.get_object(Bucket=BUCKET_NAME, Key=item["inputKey"])["Body"].read()
-    result = detect_walls(source, int(item["width"]), int(item["height"]))
+    result = detect_walls_with_bedrock(
+        source, int(item["width"]), int(item["height"])
+    )
     result_key = f"jobs/{job_id}/wall-plan.json"
     s3.put_object(
         Bucket=BUCKET_NAME,

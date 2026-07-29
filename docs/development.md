@@ -39,13 +39,7 @@ The module adds the current canvas scene offset when creating Wall documents.
 
 ## Detector limitations
 
-The v1 detector finds long straight boundaries using Canny edges and a
-probabilistic Hough transform. It does not yet:
-
-- distinguish doors or windows;
-- understand curved walls;
-- infer openings hidden by map art;
-- merge all parallel edges of a thick wall into a centre line.
-
-Those improvements belong in the worker and do not require an API/module
-redesign.
+The current detector uses Claude Haiku 4.5 through Amazon Bedrock, followed by
+deterministic validation and geometry simplification. It can still misclassify
+ambiguous artwork and does not yet create Foundry door or window document
+types. High-confidence entrances are left as gaps.

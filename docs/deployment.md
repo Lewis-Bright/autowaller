@@ -11,7 +11,13 @@ sam deploy --guided --region eu-west-1
 ```
 
 Choose a long random value (at least 24 characters) for `ApiKey`. Do not commit
-it. SAM builds the OpenCV worker as a Lambda container image.
+it. SAM builds the vision worker as a Lambda container image.
+
+The worker invokes Claude Haiku 4.5 through the EU Amazon Bedrock inference
+profile. Before the first deployment, submit the one-time Anthropic use-case
+details and activate its usage-based model agreement in Amazon Bedrock. No
+provisioned throughput is required. The worker role receives only
+`bedrock:InvokeModel` in addition to its existing job and artifact permissions.
 
 The deployment outputs an `ApiUrl`. The S3 bucket remains private; map uploads
 and wall-plan downloads use short-lived presigned URLs.

@@ -131,11 +131,20 @@ Resources:
       PackageType: Image
       MemorySize: 3008
       Timeout: 900
+      Environment:
+        Variables:
+          BEDROCK_MODEL_ID: eu.anthropic.claude-haiku-4-5-20251001-v1:0
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref JobTable
         - S3CrudPolicy:
             BucketName: !Ref ArtifactBucket
+        - Statement:
+            - Sid: InvokeBedrockVisionModel
+              Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: "*"
       Events:
         Jobs:
           Type: SQS
