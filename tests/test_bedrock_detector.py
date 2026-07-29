@@ -70,6 +70,9 @@ class BedrockDetectorTests(unittest.TestCase):
             client.request["toolConfig"]["toolChoice"]["tool"]["name"],
             "submit_wall_plan",
         )
+        prompt = client.request["messages"][0]["content"][1]["text"]
+        self.assertIn("where that floor ends", prompt)
+        self.assertIn("not on the structure's exterior silhouette", prompt)
 
     def test_rejects_out_of_range_coordinates(self):
         client = FakeBedrock(

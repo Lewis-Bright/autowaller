@@ -15,6 +15,10 @@ GRID_DIVISIONS = 10
 SYSTEM_PROMPT = """You convert top-down tabletop battle maps into Foundry VTT walls.
 Draw boundaries where the map artwork visibly changes from walkable floor into a solid
 physical structure such as a building wall, cave wall, cliff, fence, or tent wall.
+Place each wall on the FLOOR-FACING INNER EDGE of that structure: the line where the
+walkable area ends and the blocking material begins. For a thick tent, cave, or building
+wall, do not trace its grass-facing or exterior silhouette. Do not place walls outside
+the structure. Follow one consistent inner edge around the traversable space.
 The rectangular image/canvas edge is NOT a wall. Never return the image corners or image
 border unless a visible physical structure genuinely follows that border. Look inward
 from the canvas edge to find the illustrated play area's real structural boundary.
@@ -38,9 +42,11 @@ clearly visible, high-confidence openings."""
 WALL_PLAN_TOOL = {
     "toolSpec": {
         "name": "submit_wall_plan",
-        "description": (
-            "Submit the minimal structural wall plan. Coordinates are normalized to "
-            "the image: x=0 is left, x=1000 is right, y=0 is top, y=1000 is bottom."
+                        "description": (
+                            "Submit an accurate structural wall plan along the floor-facing "
+                            "inner edge of each blocking structure. Coordinates are normalized "
+                            "to the image: x=0 is left, x=1000 is right, y=0 is top, "
+                            "y=1000 is bottom."
         ),
         "inputSchema": {
             "json": {
@@ -61,7 +67,9 @@ WALL_PLAN_TOOL = {
                             "boundary": {
                                 "type": "string",
                                 "description": (
-                                    "Where its blocking boundary lies relative to the grid."
+                                    "Where the floor-facing inner blocking edge lies relative "
+                                    "to the grid, explicitly distinguishing it from any outer "
+                                    "silhouette."
                                 ),
                             },
                             "openings": {
@@ -112,7 +120,8 @@ WALL_PLAN_TOOL = {
                                     "type": "array",
                                     "description": (
                                         "Exactly [x1,y1,x2,y2], each normalized from "
-                                        "0 through 1000."
+                                        "0 through 1000. Endpoints must lie on the floor-facing "
+                                        "inner edge of the blocking structure."
                                     ),
                                     "items": {"type": "number"},
                                 },
@@ -399,7 +408,10 @@ def detect_walls_with_bedrock(
                             "Call submit_wall_plan once. Be conservative: an omitted "
                             "decorative edge is better than a false wall. First locate "
                             "the visibly walkable floor, then trace only its real physical "
-                            "boundary; do not use the rectangular image boundary. A cyan "
+                            "boundary. Put coordinates where that floor ends and the wall "
+                            "material begins—not on the structure's exterior silhouette and "
+                            "never out in surrounding grass or scenery. Trace one consistent "
+                            "floor-facing inner edge; do not use the rectangular image boundary. A cyan "
                             "coordinate grid is overlaid every 100 normalized units, with "
                             "x labels along the top and y labels along the left. Use it to "
                             "place accurate connected endpoints. Curved tent, cave, and "
