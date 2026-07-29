@@ -2,7 +2,7 @@
   "id": "autowaller",
   "title": "Autowaller",
   "description": "Detect and immediately apply walls to the current scene using an asynchronous walling service.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -22,7 +22,7 @@
   ],
   "url": "https://github.com/Lewis-Bright/autowaller",
   "manifest": "https://raw.githubusercontent.com/Lewis-Bright/autowaller/main/module/module.json",
-  "download": "https://github.com/Lewis-Bright/autowaller/releases/download/v0.2.1/autowaller-v0.2.1.zip",
+  "download": "https://github.com/Lewis-Bright/autowaller/releases/download/v0.2.2/autowaller-v0.2.2.zip",
   "styles": [
     "styles/autowaller.css"
   ],

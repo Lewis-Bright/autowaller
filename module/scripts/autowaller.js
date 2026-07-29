@@ -34,7 +34,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
   const tool = {
     name: "autowaller",
     title: "Auto Wall",
-    icon: "fas fa-wand-magic-sparkles",
+    icon: "fas fa-wand-magic-sparkles autowaller-icon",
     button: true,
     visible: game.user.isGM,
     onClick: confirmAndRun

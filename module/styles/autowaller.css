@@ -1,9 +1,18 @@
-#scene-controls [data-tool="autowaller"] i {
-  color: #c084fc;
+.autowaller-icon,
+[data-tool="autowaller"] i,
+[data-tool="autowaller"] i::before {
+  color: #c084fc !important;
   filter: drop-shadow(0 0 3px rgb(126 34 206 / 70%));
 }
 
-#scene-controls [data-tool="autowaller"]:hover i,
-#scene-controls [data-tool="autowaller"].active i {
-  color: #e9d5ff;
+[data-tool="autowaller"] {
+  --control-icon-color: #c084fc;
+  --color-text-primary: #c084fc;
+}
+
+[data-tool="autowaller"]:hover .autowaller-icon,
+[data-tool="autowaller"].active .autowaller-icon,
+[data-tool="autowaller"]:hover i,
+[data-tool="autowaller"].active i {
+  color: #e9d5ff !important;
 }
