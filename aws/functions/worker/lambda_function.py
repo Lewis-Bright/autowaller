@@ -6,10 +6,12 @@ import boto3
 from botocore.exceptions import ClientError
 
 from bedrock_detector import detect_walls_with_bedrock
+from hybrid_detector import detect_walls_hybrid
 
 
 TABLE_NAME = os.environ["JOB_TABLE"]
 BUCKET_NAME = os.environ["ARTIFACT_BUCKET"]
+DETECTOR_MODE = os.environ.get("DETECTOR_MODE", "bedrock")
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(TABLE_NAME)
@@ -41,9 +43,12 @@ def _process(job_id):
             return
         raise
     source = s3.get_object(Bucket=BUCKET_NAME, Key=item["inputKey"])["Body"].read()
-    result = detect_walls_with_bedrock(
-        source, int(item["width"]), int(item["height"])
+    detector = (
+        detect_walls_hybrid
+        if DETECTOR_MODE == "hybrid"
+        else detect_walls_with_bedrock
     )
+    result = detector(source, int(item["width"]), int(item["height"]))
     result_key = f"jobs/{job_id}/wall-plan.json"
     s3.put_object(
         Bucket=BUCKET_NAME,

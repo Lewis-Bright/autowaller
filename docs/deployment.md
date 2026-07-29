@@ -13,6 +13,14 @@ sam deploy --guided --region eu-west-1
 Choose a long random value (at least 24 characters) for `ApiKey`. Do not commit
 it. SAM builds the vision worker as a Lambda container image.
 
+`DetectorMode` defaults to `bedrock`, where the vision model supplies wall
+coordinates. For an isolated OpenCV/Bedrock comparison stack, deploy the same
+template under a different stack name with `DetectorMode=hybrid`. The hybrid
+worker detects and labels whole-map contours with OpenCV, then asks Bedrock to
+select the genuine floor-facing structural candidates. Each stack has its own
+API, queues, table, bucket, and worker, so switching the module's service URL
+does not mix their jobs.
+
 The worker invokes Claude Haiku 4.5 through the EU Amazon Bedrock inference
 profile. Before the first deployment, submit the one-time Anthropic use-case
 details and activate its usage-based model agreement in Amazon Bedrock. No
