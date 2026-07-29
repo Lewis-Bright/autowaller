@@ -103,6 +103,36 @@ class BedrockDetectorTests(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]["c"], [0.0, 0.0, 300.0, 1.0])
 
+    def test_preserves_enough_segments_for_a_curved_boundary(self):
+        center = np.array([500.0, 500.0])
+        radius = 300.0
+        points = [
+            center
+            + radius
+            * np.array(
+                [
+                    np.cos(2 * np.pi * index / 48),
+                    np.sin(2 * np.pi * index / 48),
+                ]
+            )
+            for index in range(48)
+        ]
+        walls = []
+        for index, start in enumerate(points):
+            end = points[(index + 1) % len(points)]
+            walls.append(
+                {
+                    "c": [*start.tolist(), *end.tolist()],
+                    "type": "wall",
+                    "confidence": 0.9,
+                }
+            )
+
+        result = detector._simplify_walls(walls, 1000, 1000)
+
+        self.assertGreaterEqual(len(result), 16)
+        self.assertLessEqual(len(result), 24)
+
 
 if __name__ == "__main__":
     unittest.main()

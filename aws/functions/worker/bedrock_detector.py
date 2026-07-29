@@ -21,10 +21,13 @@ from the canvas edge to find the illustrated play area's real structural boundar
 Ignore furniture, tables, chairs, rugs, fires, shadows, artwork, ropes, plants, props,
 texture lines, and decorative details. Prefer the perimeter of the traversable play area
 and genuine internal room dividers. Preserve visible doors, gates, cave mouths, tent
-openings, and entrances as open gaps. Approximate curves with a small number of long
-straight segments. Return the smallest accurate outline a human GM would reasonably
-draw, normally 6 to 20 segments for one enclosed area. Do not reduce the count so far
-that segments cut across walkable floor. Boundary segments should connect
+openings, and entrances as open gaps. Approximate curves with enough connected straight
+segments to follow the visible boundary closely. A round or irregular enclosed structure
+will normally need 12 to 24 segments; a mostly rectangular structure may need far fewer.
+Return the smallest accurate outline a human GM would reasonably draw, but prioritize
+matching the artwork over minimizing the segment count. Do not reduce the count so far
+that segments cut across walkable floor or visibly drift away from a curved wall.
+Boundary segments should connect
 endpoint-to-endpoint except where an intentional entrance gap exists. Never trace both
 edges of a thick wall. A continuous floor, path, carpet, stairs, or corridor crossing
 through the structural boundary indicates an opening even when there is no conventional
@@ -329,7 +332,10 @@ def _simplify_walls(walls, scene_width, scene_height):
         components.append(current)
 
     simplified = []
-    epsilon = min(scene_width, scene_height) * 0.0125
+    # Preserve useful curvature while still collapsing genuinely straight runs.
+    # At 0.5% of the shorter scene edge, a circular outline normally retains
+    # roughly 16-24 segments instead of becoming a visibly coarse polygon.
+    epsilon = min(scene_width, scene_height) * 0.006
     for component in components:
         if len(component) < 3:
             simplified.extend(component)
@@ -388,15 +394,18 @@ def detect_walls_with_bedrock(
                     {"image": {"format": "jpeg", "source": {"bytes": image}}},
                     {
                         "text": (
-                            "Create the minimal Foundry wall plan for this battle map. "
+                            "Create an accurate, economical Foundry wall plan for this "
+                            "battle map. "
                             "Call submit_wall_plan once. Be conservative: an omitted "
                             "decorative edge is better than a false wall. First locate "
                             "the visibly walkable floor, then trace only its real physical "
                             "boundary; do not use the rectangular image boundary. A cyan "
                             "coordinate grid is overlaid every 100 normalized units, with "
                             "x labels along the top and y labels along the left. Use it to "
-                            "place accurate connected endpoints. No segment may cut across "
-                            "walkable floor merely to reduce the segment count. Complete "
+                            "place accurate connected endpoints. Curved tent, cave, and "
+                            "tower walls need enough segments to follow the artwork; do "
+                            "not turn them into coarse polygons merely to reduce the "
+                            "segment count. No segment may cut across walkable floor. Complete "
                             "the analysis fields first: inspect the entire perimeter and "
                             "list every visible entrance or deliberate gap. The wall "
                             "segments must stop on each side of those openings."
