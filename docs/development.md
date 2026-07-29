@@ -9,16 +9,16 @@
 
 ## Detector tests
 
-From `foundry-autowaller`:
+From `autowaller`:
 
 ```powershell
-docker build --tag foundry-autowaller-worker:test aws\functions\worker
+docker build --tag autowaller-worker:test aws\functions\worker
 docker run --rm `
   --volume "${PWD}:/workspace" `
   --workdir /workspace `
   --env PYTHONPATH=/var/task `
   --entrypoint python `
-  foundry-autowaller-worker:test `
+  autowaller-worker:test `
   -m unittest discover -s tests -v
 ```
 

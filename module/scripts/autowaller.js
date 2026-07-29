@@ -1,4 +1,4 @@
-const MODULE_ID = "foundry-autowaller";
+const MODULE_ID = "autowaller";
 const POLL_INTERVAL_MS = 2000;
 const POLL_TIMEOUT_MS = 15 * 60 * 1000;
 const MINIMUM_CONFIDENCE = 0.65;

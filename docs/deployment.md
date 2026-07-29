@@ -6,7 +6,7 @@ Install Docker and the AWS SAM CLI, authenticate the AWS CLI, then run from the
 repository root:
 
 ```powershell
-sam build --template-file foundry-autowaller\aws\template.yaml
+sam build --template-file autowaller\aws\template.yaml
 sam deploy --guided --region eu-west-1
 ```
 
@@ -27,18 +27,17 @@ release, replace it with per-user authentication and quotas.
 
 ## 2. Install the Foundry module
 
-Copy `foundry-autowaller/module` to the Foundry user-data modules directory as:
+Copy `autowaller/module` to the Foundry user-data modules directory as:
 
 ```text
-Data/modules/foundry-autowaller/
+Data/modules/autowaller/
 ```
 
-Restart Foundry and enable **Foundry Autowaller** in the world. Under
+Restart Foundry and enable **Autowaller** in the world. Under
 **Configure Settings → Module Settings**, enter the stack's `ApiUrl` output and
 the private Autowaller API key.
 
-The module currently declares compatibility with Foundry v12 and v13. Confirm
-the module against a real world backup before expanding the verified range.
+The module declares Foundry v14 as its minimum and verified version.
 
 ## 3. Use it
 

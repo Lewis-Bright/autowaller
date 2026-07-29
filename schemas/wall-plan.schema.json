@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://sarcasticgames.co.uk/schemas/autowaller/wall-plan.schema.json",
-  "title": "Foundry Autowaller Wall Plan",
+  "title": "Autowaller Wall Plan",
   "type": "object",
   "required": ["schemaVersion", "scene", "walls"],
   "properties": {
@@ -39,4 +39,3 @@
   },
   "additionalProperties": false
 }
-

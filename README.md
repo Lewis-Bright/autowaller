@@ -1,6 +1,6 @@
-# Foundry Autowaller
+# Autowaller
 
-Foundry Autowaller is a GM-controlled Foundry VTT module backed by an
+Autowaller is a GM-controlled Foundry VTT module backed by an
 asynchronous AWS wall-detection service.
 
 ## Status
