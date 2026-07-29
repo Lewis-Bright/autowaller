@@ -2,7 +2,7 @@
   "id": "autowaller",
   "title": "Autowaller",
   "description": "Detect and immediately apply walls to the current scene using an asynchronous walling service.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -12,9 +12,20 @@
       "name": "Sarcastic Games"
     }
   ],
+  "media": [
+    {
+      "type": "setup",
+      "url": "assets/autowaller.svg",
+      "thumbnail": "assets/autowaller.svg",
+      "caption": "Autowaller"
+    }
+  ],
   "url": "https://github.com/Lewis-Bright/autowaller",
   "manifest": "https://raw.githubusercontent.com/Lewis-Bright/autowaller/main/module/module.json",
-  "download": "https://github.com/Lewis-Bright/autowaller/releases/download/v0.2.0/autowaller-v0.2.0.zip",
+  "download": "https://github.com/Lewis-Bright/autowaller/releases/download/v0.2.1/autowaller-v0.2.1.zip",
+  "styles": [
+    "styles/autowaller.css"
+  ],
   "esmodules": [
     "scripts/autowaller.js"
   ]
