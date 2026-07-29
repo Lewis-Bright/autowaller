@@ -233,7 +233,7 @@ function validatePlan(plan, expected) {
 
 function wallData(wall, runId, offset) {
   const movement = CONST.WALL_MOVEMENT_TYPES?.NORMAL ?? 20;
-  const sense = CONST.WALL_SENSE_TYPES?.NORMAL ?? 1;
+  const sense = CONST.EDGE_SENSE_TYPES?.NORMAL ?? 20;
   const doorNone = CONST.WALL_DOOR_TYPES?.NONE ?? 0;
   const [x1, y1, x2, y2] = wall.c;
   return {
